@@ -10,7 +10,12 @@ Func Run starting to run the task
 ```
 import github.com/zmwater/crongo
 
-c := crongo.New()
-c.Add("* * * * *", demo, []string{"a", "b"})
-c.Run()
+go func() {
+    // call function at the first time, optional.
+    demo.DoSomeThing([]string{"aa", "bb"})
+
+    c := crongo.New()
+    c.Add("* * * * *", demo.DoSomeThing, []string{"Foo", "bar"})
+    c.Run()
+}()
 ```
