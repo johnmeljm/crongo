@@ -11,8 +11,9 @@ type CronMgmt struct {
 // CronItem list
 type CronItem struct {
 	T    Timer
-	F    func([]string)
-	Args []string
+	F    func(map[string]interface{})
+	FNP  func()
+	Args map[string]interface{}
 }
 
 // New return a new instance of CronMgmt
@@ -21,9 +22,15 @@ func New() CronMgmt {
 }
 
 // Add add new cron
-func (c *CronMgmt) Add(timeString string, f func([]string), args []string) {
+func (c *CronMgmt) Add(timeString string, f func(map[string]interface{}), args map[string]interface{}) {
 	t, _ := timerParser(timeString)
-	c.List = append(c.List, CronItem{T: t, F: f, Args: args})
+	c.List = append(c.List, CronItem{T: t, F: f, FNP: nil, Args: args})
+}
+
+// AddNoParam add new cron
+func (c *CronMgmt) AddNoParam(timeString string, f func()) {
+	t, _ := timerParser(timeString)
+	c.List = append(c.List, CronItem{T: t, F: nil, FNP: f, Args: map[string]interface{}{}})
 }
 
 // Run start Cron
@@ -35,7 +42,7 @@ func (c *CronMgmt) Run() {
 	wg.Add(len(c.List))
 	for _, v := range c.List {
 		go func(i CronItem) {
-			runTask(i.T, i.F, i.Args)
+			runTask(i.T, i.F, i.FNP, i.Args)
 			wg.Done()
 		}(v)
 	}

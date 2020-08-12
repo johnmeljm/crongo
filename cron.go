@@ -9,14 +9,18 @@ import (
 )
 
 // runTask run by time and func
-func runTask(t Timer, f func([]string), args []string) {
+func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}) {
 	var once = make(chan int)
 
-	go func(args []string) {
+	go func(args map[string]interface{}) {
 		for {
 			select {
 			case <-once:
-				go f(args)
+				if f != nil {
+					go f(args)
+				} else if fnp != nil {
+					go fnp()
+				}
 			}
 		}
 	}(args)

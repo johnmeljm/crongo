@@ -12,10 +12,13 @@ import github.com/zmwater/crongo
 
 go func() {
     // call function at the first time, optional.
-    demo.DoSomeThing([]string{"aa", "bb"})
+    demo.DoSomeThing(map[string]interface{}{"a": "Foo", "b": "bar"})
 
     c := crongo.New()
-    c.Add("* * * * *", demo.DoSomeThing, []string{"Foo", "bar"})
+    // call function with parameter, parameter type is map[string]interface{}
+    c.Add("* * * * *", demo.DoSomeThing, map[string]interface{}{"a": "Foo", "b": "bar"})
+    // call function without parameter
+    c.AddNoParam("* * * * *", demo.DoAnotherThing)
     c.Run()
 }()
 ```
