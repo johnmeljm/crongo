@@ -140,6 +140,8 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 		for i = uint8(start); i <= uint8(end); i++ {
 			result = append(result, i)
 		}
+	} else if itemValue, err := strconv.ParseInt(item, 10, 32); err == nil { // 1(single number)
+		result = []uint8{uint8(itemValue)}
 	}
 
 	return

@@ -1,6 +1,8 @@
 package crongo
 
-import "sync"
+import (
+	"sync"
+)
 
 // CronMgmt cron management
 type CronMgmt struct {
