@@ -9,7 +9,7 @@ import (
 )
 
 // runTask run by time and func
-func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}) {
+func runTask_bak(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}) {
 	var once = make(chan int)
 
 	go func(args map[string]interface{}) {
@@ -40,6 +40,22 @@ func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[strin
 	}
 }
 
+// runTask run by time and func
+func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}) {
+	matchWeekday := intInList(uint8(time.Now().Weekday()), t.TWeekday)
+	matchMonth := intInList(uint8(time.Now().Month()), t.TMonth)
+	matchDay := intInList(uint8(time.Now().Day()), t.TDay)
+	matchHour := intInList(uint8(time.Now().Hour()), t.THour)
+	matchMinute := intInList(uint8(time.Now().Minute()), t.TMinute)
+	if matchMonth && (matchDay || matchWeekday) && matchHour && matchMinute {
+		if f != nil {
+			f(args)
+		} else if fnp != nil {
+			fnp()
+		}
+	}
+}
+
 func intInList(item uint8, list []uint8) bool {
 	if len(list) <= 0 {
 		return false
@@ -63,7 +79,7 @@ type Timer struct {
 }
 
 // timerParser parse string to Timer format
-// The param format is the same as the Linux Crontab
+// The param format is same as the Linux Crontab
 func timerParser(s string) (Timer, error) {
 	matched, _ := regexp.MatchString(`[0-9*/\-]* [0-9*/\-]* [0-9*/\-]* [0-9*/\-]* [0-9*/\-]*`, s)
 	if !matched {

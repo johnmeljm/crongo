@@ -2,6 +2,7 @@ package crongo
 
 import (
 	"sync"
+	"time"
 )
 
 // CronMgmt cron management
@@ -36,7 +37,7 @@ func (c *CronMgmt) AddNoParam(timeString string, f func()) {
 }
 
 // Run start Cron
-func (c *CronMgmt) Run() {
+func (c *CronMgmt) Run_bak() {
 	if len(c.List) <= 0 {
 		return
 	}
@@ -49,4 +50,22 @@ func (c *CronMgmt) Run() {
 		}(v)
 	}
 	wg.Wait()
+}
+
+// Run start Cron
+func (c *CronMgmt) Run() {
+	if len(c.List) <= 0 {
+		return
+	}
+	t := time.NewTicker(time.Minute)
+	for {
+		select {
+		case <-t.C:
+			for _, v := range c.List {
+				go func(i CronItem) {
+					runTask(i.T, i.F, i.FNP, i.Args)
+				}(v)
+			}
+		}
+	}
 }
