@@ -58,14 +58,12 @@ func (c *CronMgmt) Run() {
 		return
 	}
 	t := time.NewTicker(time.Minute)
-	for {
-		select {
-		case <-t.C:
-			for _, v := range c.List {
-				go func(i CronItem) {
-					runTask(i.T, i.F, i.FNP, i.Args)
-				}(v)
-			}
+	defer t.Stop()
+	for range t.C {
+		for _, v := range c.List {
+			go func(i CronItem) {
+				runTask(i.T, i.F, i.FNP, i.Args)
+			}(v)
 		}
 	}
 }

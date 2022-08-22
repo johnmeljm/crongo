@@ -106,7 +106,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 			result = append(result, i)
 		}
 	}
-	if strings.Contains(item, "/") { // []/5
+	if strings.Contains(item, "/") { // expression like []/5
 		arithValue := strings.Split(item, "/")
 		denominator, _ := strconv.Atoi(arithValue[1])
 		if arithValue[0] == "*" { // */5
@@ -117,7 +117,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 				}
 			}
 		}
-		if strings.Contains(arithValue[0], "-") { // 1-10/5
+		if strings.Contains(arithValue[0], "-") { // expression like 1-10/5
 			rangeValue := strings.Split(arithValue[0], "-")
 			start, _ := strconv.Atoi(rangeValue[0])
 			if uint8(start) < min {
@@ -134,7 +134,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 				}
 			}
 		}
-	} else if strings.Contains(item, ",") { // 1,2,3,4
+	} else if strings.Contains(item, ",") { // expression like 1,2,3,4
 		rangeValue := strings.Split(item, ",")
 		for _, v := range rangeValue {
 			value, _ := strconv.Atoi(v)
@@ -142,7 +142,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 				result = append(result, uint8(value))
 			}
 		}
-	} else if strings.Contains(item, "-") { // 1-10
+	} else if strings.Contains(item, "-") { // expression like 1-10
 		rangeValue := strings.Split(item, "-")
 		start, _ := strconv.Atoi(rangeValue[0])
 		if uint8(start) < min {
@@ -156,7 +156,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 		for i = uint8(start); i <= uint8(end); i++ {
 			result = append(result, i)
 		}
-	} else if itemValue, err := strconv.ParseInt(item, 10, 32); err == nil { // 1(single number)
+	} else if itemValue, err := strconv.ParseInt(item, 10, 32); err == nil { // expression like 1(single number)
 		result = []uint8{uint8(itemValue)}
 	}
 
