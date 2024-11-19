@@ -10,35 +10,6 @@ import (
 )
 
 // runTask run by time and func
-func runTask_bak(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}) {
-	var once = make(chan int)
-
-	go func(args map[string]interface{}) {
-		for range once {
-			if f != nil {
-				go f(args)
-			} else if fnp != nil {
-				go fnp()
-			}
-		}
-	}(args)
-
-	for {
-		matchWeekday := intInList(uint8(time.Now().Weekday()), t.TWeekday)
-		matchMonth := intInList(uint8(time.Now().Month()), t.TMonth)
-		matchDay := intInList(uint8(time.Now().Day()), t.TDay)
-		matchHour := intInList(uint8(time.Now().Hour()), t.THour)
-		matchMinute := intInList(uint8(time.Now().Minute()), t.TMinute)
-		if matchMonth && (matchDay || matchWeekday) && matchHour && matchMinute {
-			if time.Now().Second() == 0 {
-				once <- 1
-				time.Sleep(time.Minute*1 - time.Nanosecond*time.Duration(time.Now().Nanosecond()))
-			}
-		}
-	}
-}
-
-// runTask run by time and func
 func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}, isDebug bool) {
 	matchWeekday := intInList(uint8(time.Now().Weekday()), t.TWeekday)
 	matchMonth := intInList(uint8(time.Now().Month()), t.TMonth)

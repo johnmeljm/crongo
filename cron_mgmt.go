@@ -30,15 +30,15 @@ func NewDebug() CronMgmt {
 }
 
 // Add add new cron
-func (c *CronMgmt) Add(timeString string, f func(map[string]interface{}), args map[string]interface{}) {
-	t, _ := timerParser(timeString)
-	c.List = append(c.List, CronItem{T: t, F: f, FNP: nil, Args: args})
-}
-
-// AddNoParam add new cron
-func (c *CronMgmt) AddNoParam(timeString string, f func()) {
+func (c *CronMgmt) Add(timeString string, f func()) {
 	t, _ := timerParser(timeString)
 	c.List = append(c.List, CronItem{T: t, F: nil, FNP: f, Args: map[string]interface{}{}})
+}
+
+// AddWithParam add new cron with params
+func (c *CronMgmt) AddWithParams(timeString string, f func(map[string]interface{}), args map[string]interface{}) {
+	t, _ := timerParser(timeString)
+	c.List = append(c.List, CronItem{T: t, F: f, FNP: nil, Args: args})
 }
 
 // Run start Cron
