@@ -2,6 +2,7 @@ package crongo
 
 import (
 	"errors"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -13,14 +14,11 @@ func runTask_bak(t Timer, f func(map[string]interface{}), fnp func(), args map[s
 	var once = make(chan int)
 
 	go func(args map[string]interface{}) {
-		for {
-			select {
-			case <-once:
-				if f != nil {
-					go f(args)
-				} else if fnp != nil {
-					go fnp()
-				}
+		for range once {
+			if f != nil {
+				go f(args)
+			} else if fnp != nil {
+				go fnp()
 			}
 		}
 	}(args)
@@ -41,13 +39,16 @@ func runTask_bak(t Timer, f func(map[string]interface{}), fnp func(), args map[s
 }
 
 // runTask run by time and func
-func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}) {
+func runTask(t Timer, f func(map[string]interface{}), fnp func(), args map[string]interface{}, isDebug bool) {
 	matchWeekday := intInList(uint8(time.Now().Weekday()), t.TWeekday)
 	matchMonth := intInList(uint8(time.Now().Month()), t.TMonth)
 	matchDay := intInList(uint8(time.Now().Day()), t.TDay)
 	matchHour := intInList(uint8(time.Now().Hour()), t.THour)
 	matchMinute := intInList(uint8(time.Now().Minute()), t.TMinute)
 	if matchMonth && (matchDay || matchWeekday) && matchHour && matchMinute {
+		if isDebug {
+			log.Printf("%+v\n", t)
+		}
 		if f != nil {
 			f(args)
 		} else if fnp != nil {
@@ -106,7 +107,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 			result = append(result, i)
 		}
 	}
-	if strings.Contains(item, "/") { // expression like []/5
+	if strings.Contains(item, "/") { // []/5
 		arithValue := strings.Split(item, "/")
 		denominator, _ := strconv.Atoi(arithValue[1])
 		if arithValue[0] == "*" { // */5
@@ -117,7 +118,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 				}
 			}
 		}
-		if strings.Contains(arithValue[0], "-") { // expression like 1-10/5
+		if strings.Contains(arithValue[0], "-") { // 1-10/5
 			rangeValue := strings.Split(arithValue[0], "-")
 			start, _ := strconv.Atoi(rangeValue[0])
 			if uint8(start) < min {
@@ -134,7 +135,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 				}
 			}
 		}
-	} else if strings.Contains(item, ",") { // expression like 1,2,3,4
+	} else if strings.Contains(item, ",") { // 1,2,3,4
 		rangeValue := strings.Split(item, ",")
 		for _, v := range rangeValue {
 			value, _ := strconv.Atoi(v)
@@ -142,7 +143,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 				result = append(result, uint8(value))
 			}
 		}
-	} else if strings.Contains(item, "-") { // expression like 1-10
+	} else if strings.Contains(item, "-") { // 1-10
 		rangeValue := strings.Split(item, "-")
 		start, _ := strconv.Atoi(rangeValue[0])
 		if uint8(start) < min {
@@ -156,7 +157,7 @@ func fmtItem(item string, min, max uint8) (result []uint8) {
 		for i = uint8(start); i <= uint8(end); i++ {
 			result = append(result, i)
 		}
-	} else if itemValue, err := strconv.ParseInt(item, 10, 32); err == nil { // expression like 1(single number)
+	} else if itemValue, err := strconv.ParseInt(item, 10, 32); err == nil { // 1(single number)
 		result = []uint8{uint8(itemValue)}
 	}
 
